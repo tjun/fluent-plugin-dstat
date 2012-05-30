@@ -81,38 +81,59 @@ class DstatInput < Input
         end
 
         @first_keys.each_with_index do |i, index|
-          value_hash = Hash.new()
           first = i.gsub(/^-+|-+$/, "")
           length = i.length
 
+         if first == "total-cpu-usage"
+           first = "cpu"
+         elsif first == "memory-usage"
+           first = "mem"
+         elsif first == "dsk/total"
+           first = "dsk"
+         elsif first == "net/total"
+           first = "net"
+         end
+
+
           if first == "most-expensive"
             s_key = @second_keys[index].gsub(/^\s+|\s+$/, "")
-            value_hash[s_key] = values[index]
+            hash[s_key] = values[index]
           else
             keys = split_second_key(@second_keys[index])
             second_index = 0
 
             keys.each do |i|
+              skey = i.gsub(/^\s+|\s+$/, "")
               next_index = second_index + i.length - 1
               value = values[index][second_index..next_index]
-              second_index += i.length + 1
+              second_index += i.length + 0
               value = value.gsub(/^\s+|\s+$/, "") if value
-              value_hash[i.gsub(/^\s+|\s+$/, "")] = value
+              if skey == "hiq" || skey == "siq"
+                next
+              end
+
+              if value != nil
+                if value.include?("B")
+                  value.delete!("B")
+                elsif value.include?("K") || value.include?("k")
+                  value.delete!("K", "k")
+                  value = value.to_i * 1000
+                elsif value.include?("M") || value.include?("m")
+                  value.delete!("M", "m")
+                  value = value.to_i * 1000000
+                end
+              end
+
+              if value == nil
+                value = 0
+              end
+              hash[first + "-" + skey] = value
             end
           end
 
-          if hash[first].nil?
-            hash[first] = value_hash
-          else
-            hash[first] = hash[first].merge(value_hash)
-          end
         end
 
-        record = {
-          'hostname' => @hostname,
-          'dstat' => hash
-        }
-        Engine.emit(@tag, Engine.now, record)
+        Engine.emit(@tag, Engine.now, hash)
       end
       @line_number += 1
 
@@ -122,6 +143,5 @@ class DstatInput < Input
     end
   end
 end
-
 
 end
