@@ -2,7 +2,12 @@
 
 This fork has different output data format that fit growthforecast plugin.
 
-Description goes here.
+== Install this fork
+
+clone/fork project
+
+  $ gem build fluent-plugin-dstat.gemspec
+  $ gem install fluent-plugin-dstat-0.1.0.gem
 
 == What's Dstat?
 
@@ -26,7 +31,7 @@ This plugin use Dstat, so you need to install Dstat before using this plugin.
 When you use option -c, you get structured output data like below.
 
   {
-  "cpu-usr":"0", "cpu-sys":"0","cpu-idl":"100","cpu-wai":"0","cpu-hiq":"0","cpu-siq":"0"
+  "host":"hostname","cpu-usr":"0", "cpu-sys":"0","cpu-idl":"100","cpu-wai":"0","cpu-hiq":"0","cpu-siq":"0"
   }
 
 == Supported options
