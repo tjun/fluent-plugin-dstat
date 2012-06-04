@@ -73,6 +73,7 @@ class DstatInput < Input
         end
       else
         hash = Hash.new()
+        hash["host"] = @hostname
         values = []
         index = 0
         @first_keys.each do |i|
